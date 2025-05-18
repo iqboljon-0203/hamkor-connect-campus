@@ -44,6 +44,7 @@ export const NavigationMenu = ({ role }: NavigationMenuProps) => {
     { to: `${basePath}/groups`, icon: <List className="h-5 w-5" />, label: 'Guruhlar' },
     { to: `${basePath}/calendar`, icon: <Calendar className="h-5 w-5" />, label: 'Kalendar' },
     { to: `/profile`, icon: <User className="h-5 w-5" />, label: 'Profil' },
+    { to: `/settings`, icon: <Settings className="h-5 w-5" />, label: 'Sozlamalar' },
   ];
   
   const studentNavItems = [
@@ -51,6 +52,7 @@ export const NavigationMenu = ({ role }: NavigationMenuProps) => {
     { to: `${basePath}/tasks`, icon: <List className="h-5 w-5" />, label: 'Topshiriqlar' },
     { to: `${basePath}/calendar`, icon: <Calendar className="h-5 w-5" />, label: 'Kalendar' },
     { to: `/profile`, icon: <User className="h-5 w-5" />, label: 'Profil' },
+    { to: `/settings`, icon: <Settings className="h-5 w-5" />, label: 'Sozlamalar' },
   ];
   
   const navItems = role === 'teacher' ? teacherNavItems : studentNavItems;

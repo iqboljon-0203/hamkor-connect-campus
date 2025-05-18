@@ -1,19 +1,79 @@
 
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useToast } from "@/hooks/use-toast";
 
 const Settings = () => {
+  const { toast } = useToast();
+  const [darkMode, setDarkMode] = useState(false);
+  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+  const [language, setLanguage] = useState("uz");
+
+  const handleSaveSettings = () => {
+    toast({
+      title: "Sozlamalar saqlandi",
+      description: "Sizning sozlamalaringiz muvaffaqiyatli saqlandi.",
+    });
+  };
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-16 mb-0 md:mb-0">
       <h1 className="text-3xl font-bold tracking-tight">Sozlamalar</h1>
       
-      <Card>
+      <Card className="glass-card">
         <CardHeader>
           <CardTitle>Ilova sozlamalari</CardTitle>
         </CardHeader>
-        <CardContent>
-          <p className="text-muted-foreground">
-            Ushbu sahifa foydalanuvchi sozlamalari bilan ishlash uchun.
-          </p>
+        <CardContent className="space-y-6">
+          <div className="flex items-center justify-between">
+            <div className="space-y-0.5">
+              <Label htmlFor="dark-mode">Qorong'i rejim</Label>
+              <p className="text-sm text-muted-foreground">
+                Ilovaning qorong'i rejimini yoqish
+              </p>
+            </div>
+            <Switch
+              id="dark-mode"
+              checked={darkMode}
+              onCheckedChange={setDarkMode}
+            />
+          </div>
+          
+          <div className="flex items-center justify-between">
+            <div className="space-y-0.5">
+              <Label htmlFor="notifications">Bildirishnomalar</Label>
+              <p className="text-sm text-muted-foreground">
+                Bildirishnomalarni yoqish yoki o'chirish
+              </p>
+            </div>
+            <Switch
+              id="notifications"
+              checked={notificationsEnabled}
+              onCheckedChange={setNotificationsEnabled}
+            />
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="language">Til</Label>
+            <Select value={language} onValueChange={setLanguage}>
+              <SelectTrigger id="language" className="w-full">
+                <SelectValue placeholder="Tilni tanlang" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="uz">O'zbek</SelectItem>
+                <SelectItem value="ru">Русский</SelectItem>
+                <SelectItem value="en">English</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          
+          <Button onClick={handleSaveSettings} className="w-full sm:w-auto mt-4">
+            Saqlash
+          </Button>
         </CardContent>
       </Card>
     </div>
