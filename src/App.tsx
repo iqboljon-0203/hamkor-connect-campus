@@ -23,6 +23,10 @@ import StudentDashboard from "./pages/student/StudentDashboard";
 // Shared pages
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
+import Settings from "./pages/Settings";
+import Calendar from "./pages/Calendar";
+import TeacherGroups from "./pages/teacher/TeacherGroups";
+import StudentTasks from "./pages/student/StudentTasks";
 
 const queryClient = new QueryClient();
 
@@ -79,6 +83,8 @@ const App = () => (
               </ProtectedRoute>
             }>
               <Route index element={<TeacherDashboard />} />
+              <Route path="groups" element={<TeacherGroups />} />
+              <Route path="calendar" element={<Calendar />} />
               {/* Add more teacher routes here */}
             </Route>
             
@@ -89,6 +95,8 @@ const App = () => (
               </ProtectedRoute>
             }>
               <Route index element={<StudentDashboard />} />
+              <Route path="tasks" element={<StudentTasks />} />
+              <Route path="calendar" element={<Calendar />} />
               {/* Add more student routes here */}
             </Route>
             
@@ -99,6 +107,14 @@ const App = () => (
               </ProtectedRoute>
             }>
               <Route index element={<Profile />} />
+            </Route>
+            
+            <Route path="/settings" element={
+              <ProtectedRoute>
+                <DashboardLayout />
+              </ProtectedRoute>
+            }>
+              <Route index element={<Settings />} />
             </Route>
             
             <Route path="*" element={<NotFound />} />
