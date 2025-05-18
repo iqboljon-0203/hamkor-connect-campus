@@ -1,0 +1,56 @@
+
+import { create } from 'zustand';
+import { UserRole } from '../types';
+
+interface AuthState {
+  isAuthenticated: boolean;
+  userId: string | null;
+  email: string | null;
+  name: string | null;
+  role: UserRole | null;
+  profileUrl: string | null;
+  isLoading: boolean;
+  
+  // Actions
+  setUser: (user: {
+    id: string;
+    email: string;
+    name: string;
+    role: UserRole;
+    profileUrl?: string | null;
+  }) => void;
+  setLoading: (isLoading: boolean) => void;
+  logout: () => void;
+}
+
+export const useAuthStore = create<AuthState>((set) => ({
+  isAuthenticated: false,
+  userId: null,
+  email: null,
+  name: null,
+  role: null,
+  profileUrl: null,
+  isLoading: true,
+  
+  setUser: (user) => set({
+    isAuthenticated: true,
+    userId: user.id,
+    email: user.email,
+    name: user.name,
+    role: user.role,
+    profileUrl: user.profileUrl || null,
+    isLoading: false,
+  }),
+  
+  setLoading: (isLoading) => set({ isLoading }),
+  
+  logout: () => set({
+    isAuthenticated: false,
+    userId: null,
+    email: null,
+    name: null,
+    role: null,
+    profileUrl: null,
+    isLoading: false,
+  }),
+}));
