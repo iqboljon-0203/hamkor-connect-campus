@@ -3,9 +3,10 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import { UserRole } from '../types';
+import { supabase } from "@/integrations/supabase/client";
 
 interface AuthContextType {
-  signUp: (email: string, password: string, name: string, role: UserRole) => Promise<void>;
+  signUp: (name: string, role: UserRole) => Promise<void>;
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
   isLoading: boolean;
@@ -32,14 +33,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const checkSession = async () => {
       setLoading(true);
       try {
-        // TODO: Once Supabase is integrated, replace this with an actual session check
-        const savedUser = localStorage.getItem('hamkor_user');
-        if (savedUser) {
-          const user = JSON.parse(savedUser);
-          setUser(user);
+        const { data } = await supabase.auth.getSession();
+        if (data.session) {
+          // Get user data from local storage or create a placeholder
+          const userData = JSON.parse(localStorage.getItem('hamkor_user') || '{}');
+          setUser({
+            id: data.session.user.id,
+            email: data.session.user.email || '',
+            name: userData.name || 'User',
+            role: userData.role || 'student',
+          });
+          
           // Redirect based on role if on auth pages
           if (window.location.pathname.includes('auth')) {
-            navigate(user.role === 'teacher' ? '/teacher-dashboard' : '/student-dashboard');
+            navigate(userData.role === 'teacher' ? '/teacher-dashboard' : '/student-dashboard');
           }
         } else {
           setLoading(false);
@@ -53,20 +60,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     checkSession();
   }, [setUser, setLoading, navigate]);
 
-  const signUp = async (email: string, password: string, name: string, role: UserRole) => {
+  const signUp = async (name: string, role: UserRole) => {
     setLoading(true);
     try {
-      // TODO: Replace with Supabase auth.signUp
-      // Mock signup for now
-      const userId = `user_${Math.random().toString(36).substring(2, 11)}`;
-      const user = { id: userId, email, name, role };
+      // Generate a random email and password since we're not asking for them
+      const randomId = Math.random().toString(36).substring(2, 11);
+      const email = `${randomId}@hamkortalim.com`;
+      const password = `${randomId}_Password1`;
       
-      // Save to localStorage for demo purposes
-      localStorage.setItem('hamkor_user', JSON.stringify(user));
-      localStorage.setItem('hamkor_password', password); // INSECURE! Only for demo
+      // Sign up with Supabase
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+      });
       
-      setUser(user);
-      navigate(role === 'teacher' ? '/teacher-dashboard' : '/student-dashboard');
+      if (error) throw error;
+      
+      if (data.user) {
+        const user = { id: data.user.id, email, name, role };
+        
+        // Save to localStorage for session persistence
+        localStorage.setItem('hamkor_user', JSON.stringify(user));
+        
+        setUser(user);
+        navigate(role === 'teacher' ? '/teacher-dashboard' : '/student-dashboard');
+      }
     } catch (error) {
       console.error('Signup error:', error);
       throw error;
@@ -78,8 +96,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signIn = async (email: string, password: string) => {
     setLoading(true);
     try {
-      // TODO: Replace with Supabase auth.signInWithPassword
-      // Mock login for now
+      // For now, using the existing mock login
       const savedUser = localStorage.getItem('hamkor_user');
       const savedPassword = localStorage.getItem('hamkor_password');
       
@@ -100,8 +117,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signOut = async () => {
     try {
-      // TODO: Replace with Supabase auth.signOut
-      // Mock logout for now
+      await supabase.auth.signOut();
       logout();
       navigate('/auth/login');
     } catch (error) {
