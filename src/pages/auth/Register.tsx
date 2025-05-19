@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
@@ -14,8 +15,6 @@ import { UserRole } from "@/types";
 
 const registerSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters" }),
-  email: z.string().email({ message: "Please enter a valid email address" }),
-  password: z.string().min(6, { message: "Password must be at least 6 characters" }),
   role: z.enum(["student", "teacher"] as const, {
     required_error: "Please select a role",
   }),
@@ -32,8 +31,6 @@ const Register = () => {
     resolver: zodResolver(registerSchema),
     defaultValues: {
       name: "",
-      email: "",
-      password: "",
       role: "student",
     },
   });
@@ -41,7 +38,7 @@ const Register = () => {
   const onSubmit = async (values: RegisterFormValues) => {
     setIsLoading(true);
     try {
-      await signUp(values.email, values.password, values.name, values.role as UserRole);
+      await signUp(values.name, values.role as UserRole);
       toast({
         title: "Registration successful",
         description: "Welcome to Hamkor Talim!",
@@ -89,45 +86,6 @@ const Register = () => {
                       <Input 
                         placeholder="John Doe" 
                         disabled={isLoading} 
-                        {...field} 
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Email</FormLabel>
-                    <FormControl>
-                      <Input 
-                        placeholder="name@example.com" 
-                        type="email" 
-                        autoComplete="email" 
-                        disabled={isLoading} 
-                        {...field} 
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Password</FormLabel>
-                    <FormControl>
-                      <Input 
-                        placeholder="••••••••" 
-                        type="password" 
-                        autoComplete="new-password" 
-                        disabled={isLoading} 
-                        showPasswordToggle={true}
                         {...field} 
                       />
                     </FormControl>
