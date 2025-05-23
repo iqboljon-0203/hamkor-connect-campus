@@ -19,24 +19,24 @@ const StudentDashboard = () => {
 
   // Mock tasks
   const homeworkTasks = [
-    { id: "1", title: "Tadqiqot ishini topshirish", deadline: "2023-06-15", status: "pending", group: "Tadqiqot usullari" },
-    { id: "2", title: "Testni yakunlash", deadline: "2023-06-10", status: "submitted", group: "Dasturiy ta'minot muhandisligi" },
-    { id: "3", title: "5-chi laboratoriya mashg'uloti", deadline: "2023-06-18", status: "pending", group: "Ma'lumotlar bazasi tizimlari" },
+    { id: "1", title: "Submit Research Paper", deadline: "2023-06-15", status: "pending", group: "Research Methods" },
+    { id: "2", title: "Complete Quiz", deadline: "2023-06-10", status: "submitted", group: "Software Engineering" },
+    { id: "3", title: "Lab Exercise 5", deadline: "2023-06-18", status: "pending", group: "Database Systems" },
   ];
 
   const internshipTasks = [
-    { id: "4", title: "Dasturiy ta'minot sinovi", date: "2023-06-20", status: "pending", group: "Sifat nazorati" },
-    { id: "5", title: "Ma'lumotlar bazasi migratsiyasi", date: "2023-07-05", status: "pending", group: "Ma'lumotlar bazasi tizimlari" },
+    { id: "4", title: "Software Testing", date: "2023-06-20", status: "pending", group: "Quality Assurance" },
+    { id: "5", title: "Database Migration", date: "2023-07-05", status: "pending", group: "Database Systems" },
   ];
 
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold tracking-tight">Hush kelibsiz, {name}</h1>
+      <h1 className="text-3xl font-bold tracking-tight">Welcome back, {name}</h1>
 
-      <div className="grid gap-4 grid-cols-1 sm:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Yakunlangan topshiriqlar</CardTitle>
+            <CardTitle className="text-sm font-medium">Completed Tasks</CardTitle>
             <FileText className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -45,7 +45,7 @@ const StudentDashboard = () => {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Kutilayotgan topshiriqlar</CardTitle>
+            <CardTitle className="text-sm font-medium">Pending Tasks</CardTitle>
             <FileText className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -54,7 +54,7 @@ const StudentDashboard = () => {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Yaqinlashayotgan amaliyotlar</CardTitle>
+            <CardTitle className="text-sm font-medium">Upcoming Internships</CardTitle>
             <Calendar className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -65,62 +65,62 @@ const StudentDashboard = () => {
 
       <Card>
         <CardHeader>
-          <CardTitle>Topshiriqlar</CardTitle>
-          <CardDescription>Topshiriqlarni ko'rish va boshqarish</CardDescription>
+          <CardTitle>Tasks</CardTitle>
+          <CardDescription>View and manage your assigned tasks</CardDescription>
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="homework" className="space-y-4">
-            <TabsList className="w-full sm:w-auto flex">
-              <TabsTrigger value="homework" className="flex-1 sm:flex-none">Uyga vazifalar</TabsTrigger>
-              <TabsTrigger value="internship" className="flex-1 sm:flex-none">Amaliyot</TabsTrigger>
+            <TabsList>
+              <TabsTrigger value="homework">Homework</TabsTrigger>
+              <TabsTrigger value="internship">Internship</TabsTrigger>
             </TabsList>
             <TabsContent value="homework" className="space-y-4">
               {homeworkTasks.map(task => (
-                <div key={task.id} className="border border-border rounded-lg p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div key={task.id} className="border border-border rounded-lg p-4 flex justify-between items-center">
                   <div>
-                    <div className="flex flex-wrap items-center gap-2">
+                    <div className="flex items-center">
                       <span className="font-medium">{task.title}</span>
-                      <span className={`text-xs px-2 py-0.5 rounded-full ${
+                      <span className={`ml-2 text-xs px-2 py-0.5 rounded-full ${
                         task.status === 'pending' 
                           ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300' 
                           : 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
                       }`}>
-                        {task.status === 'pending' ? 'Kutilmoqda' : 'Topshirilgan'}
+                        {task.status.charAt(0).toUpperCase() + task.status.slice(1)}
                       </span>
                     </div>
                     <div className="text-sm text-muted-foreground mt-1">
-                      {task.group} • Muddati {new Date(task.deadline).toLocaleDateString()}
+                      {task.group} • Due {new Date(task.deadline).toLocaleDateString()}
                     </div>
                   </div>
                   <Button onClick={() => navigate(`tasks/${task.id}`)}>
-                    {task.status === "pending" ? "Topshirish" : "Ko'rish"}
+                    {task.status === "pending" ? "Submit" : "View"}
                   </Button>
                 </div>
               ))}
             </TabsContent>
             <TabsContent value="internship" className="space-y-4">
               {internshipTasks.map(task => (
-                <div key={task.id} className="border border-border rounded-lg p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div key={task.id} className="border border-border rounded-lg p-4 flex justify-between items-center">
                   <div>
-                    <div className="flex flex-wrap items-center gap-2">
+                    <div className="flex items-center">
                       <span className="font-medium">{task.title}</span>
-                      <span className={`text-xs px-2 py-0.5 rounded-full ${
+                      <span className={`ml-2 text-xs px-2 py-0.5 rounded-full ${
                         new Date(task.date) > new Date() 
                           ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300' 
                           : 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
                       }`}>
-                        {new Date(task.date) > new Date() ? 'Kelgusi' : 'Bugun'}
+                        {new Date(task.date) > new Date() ? 'Upcoming' : 'Today'}
                       </span>
                     </div>
                     <div className="text-sm text-muted-foreground mt-1">
-                      {task.group} • Rejada {new Date(task.date).toLocaleDateString()}
+                      {task.group} • Scheduled {new Date(task.date).toLocaleDateString()}
                     </div>
                   </div>
                   <Button 
                     disabled={new Date(task.date).toDateString() !== new Date().toDateString()} 
                     onClick={() => navigate(`tasks/${task.id}`)}
                   >
-                    {new Date(task.date).toDateString() === new Date().toDateString() ? "Topshirish" : "Ko'rish"}
+                    {new Date(task.date).toDateString() === new Date().toDateString() ? "Submit" : "View"}
                   </Button>
                 </div>
               ))}
@@ -131,18 +131,18 @@ const StudentDashboard = () => {
 
       <Card>
         <CardHeader>
-          <CardTitle>Guruhga qo'shilish</CardTitle>
+          <CardTitle>Join a Group</CardTitle>
           <CardDescription>
-            O'qituvchingiz tomonidan berilgan guruh kodini kiriting
+            Enter a group code provided by your teacher
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex gap-2">
             <Button variant="outline" onClick={() => navigate("join-group")}>
-              Guruhga qo'shilish
+              Join Group
             </Button>
             <Button variant="ghost" onClick={() => navigate("my-groups")}>
-              Mening guruhlarim
+              View My Groups
             </Button>
           </div>
         </CardContent>

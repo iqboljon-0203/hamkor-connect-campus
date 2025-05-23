@@ -41,18 +41,17 @@ export const NavigationMenu = ({ role }: NavigationMenuProps) => {
   
   const teacherNavItems = [
     { to: `${basePath}`, icon: <Home className="h-5 w-5" />, label: 'Dashboard' },
-    { to: `${basePath}/groups`, icon: <List className="h-5 w-5" />, label: 'Guruhlar' },
-    { to: `${basePath}/calendar`, icon: <Calendar className="h-5 w-5" />, label: 'Kalendar' },
-    { to: `/profile`, icon: <User className="h-5 w-5" />, label: 'Profil' },
-    { to: `/settings`, icon: <Settings className="h-5 w-5" />, label: 'Sozlamalar' },
+    { to: `${basePath}/groups`, icon: <List className="h-5 w-5" />, label: 'Groups' },
+    { to: `${basePath}/calendar`, icon: <Calendar className="h-5 w-5" />, label: 'Calendar' },
+    { to: `/profile`, icon: <User className="h-5 w-5" />, label: 'Profile' },
+    { to: `/settings`, icon: <Settings className="h-5 w-5" />, label: 'Settings' },
   ];
   
   const studentNavItems = [
     { to: `${basePath}`, icon: <Home className="h-5 w-5" />, label: 'Dashboard' },
-    { to: `${basePath}/tasks`, icon: <List className="h-5 w-5" />, label: 'Topshiriqlar' },
-    { to: `${basePath}/calendar`, icon: <Calendar className="h-5 w-5" />, label: 'Kalendar' },
-    { to: `/profile`, icon: <User className="h-5 w-5" />, label: 'Profil' },
-    { to: `/settings`, icon: <Settings className="h-5 w-5" />, label: 'Sozlamalar' },
+    { to: `${basePath}/tasks`, icon: <List className="h-5 w-5" />, label: 'My Tasks' },
+    { to: `${basePath}/calendar`, icon: <Calendar className="h-5 w-5" />, label: 'Calendar' },
+    { to: `/profile`, icon: <User className="h-5 w-5" />, label: 'Profile' },
   ];
   
   const navItems = role === 'teacher' ? teacherNavItems : studentNavItems;
@@ -82,7 +81,7 @@ export const NavigationMenu = ({ role }: NavigationMenuProps) => {
             onClick={handleLogout}
           >
             <LogOut className="h-5 w-5 mr-3" />
-            Chiqish
+            Logout
           </Button>
         </div>
       </div>

@@ -26,24 +26,24 @@ const TeacherDashboard = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <h1 className="text-3xl font-bold tracking-tight">Hush kelibsiz, {name}</h1>
-        <div className="flex flex-wrap gap-2">
+      <div className="flex justify-between items-center">
+        <h1 className="text-3xl font-bold tracking-tight">Welcome back, {name}</h1>
+        <div className="flex space-x-2">
           <Button onClick={() => navigate("tasks/create")}>
             <Plus className="h-4 w-4 mr-2" />
-            Yangi topshiriq
+            New Task
           </Button>
           <Button variant="outline" onClick={() => navigate("groups/create")}>
             <Plus className="h-4 w-4 mr-2" />
-            Yangi guruh
+            New Group
           </Button>
         </div>
       </div>
 
-      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Jami guruhlar</CardTitle>
+            <CardTitle className="text-sm font-medium">Total Groups</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -52,7 +52,7 @@ const TeacherDashboard = () => {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Jami topshiriqlar</CardTitle>
+            <CardTitle className="text-sm font-medium">Total Tasks</CardTitle>
             <FileText className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -61,7 +61,7 @@ const TeacherDashboard = () => {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Topshirilgan ishlar</CardTitle>
+            <CardTitle className="text-sm font-medium">Submissions</CardTitle>
             <FileText className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -70,7 +70,7 @@ const TeacherDashboard = () => {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Tekshirilishi kerak</CardTitle>
+            <CardTitle className="text-sm font-medium">Pending Reviews</CardTitle>
             <Clock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -82,32 +82,32 @@ const TeacherDashboard = () => {
       <div>
         <Card>
           <CardHeader>
-            <CardTitle>Yaqinlashayotgan topshiriqlar</CardTitle>
+            <CardTitle>Upcoming Tasks</CardTitle>
             <CardDescription>
-              Tez orada muddati tugaydigan topshiriqlar
+              Tasks that are coming up soon
             </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               {upcomingTasks.map(task => (
-                <div key={task.id} className="border border-border rounded-lg p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                <div key={task.id} className="border border-border rounded-lg p-4 flex justify-between items-center">
                   <div>
-                    <div className="flex flex-wrap items-center gap-2">
+                    <div className="flex items-center">
                       <span className="font-medium">{task.title}</span>
-                      <span className={`text-xs px-2 py-0.5 rounded-full ${
+                      <span className={`ml-2 text-xs px-2 py-0.5 rounded-full ${
                         task.type === 'homework' 
                           ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300' 
                           : 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
                       }`}>
-                        {task.type === 'homework' ? 'Uyga vazifa' : 'Amaliyot'}
+                        {task.type.charAt(0).toUpperCase() + task.type.slice(1)}
                       </span>
                     </div>
                     <div className="text-sm text-muted-foreground mt-1">
-                      {task.group} • Muddati {new Date(task.deadline).toLocaleDateString()}
+                      {task.group} • Due {new Date(task.deadline).toLocaleDateString()}
                     </div>
                   </div>
                   <Button variant="ghost" size="sm" onClick={() => navigate(`tasks/${task.id}`)}>
-                    Ko'rish
+                    View
                   </Button>
                 </div>
               ))}
