@@ -1,22 +1,9 @@
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useNavigate } from "react-router-dom";
-import { Calendar, FileText } from "lucide-react";
-import { useAuthStore } from "@/store/authStore";
 
-const StudentDashboard = () => {
-  const { name } = useAuthStore();
-  const navigate = useNavigate();
-
-  // Mock data until we connect to Supabase
-  const stats = {
-    completedTasks: 15,
-    pendingTasks: 5,
-    upcomingInternships: 2
-  };
-
+const StudentTasks = () => {
   // Mock tasks
   const homeworkTasks = [
     { id: "1", title: "Tadqiqot ishini topshirish", deadline: "2023-06-15", status: "pending", group: "Tadqiqot usullari" },
@@ -31,52 +18,22 @@ const StudentDashboard = () => {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold tracking-tight">Hush kelibsiz, {name}</h1>
-
-      <div className="grid gap-4 grid-cols-1 sm:grid-cols-3">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Yakunlangan topshiriqlar</CardTitle>
-            <FileText className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.completedTasks}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Kutilayotgan topshiriqlar</CardTitle>
-            <FileText className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.pendingTasks}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Yaqinlashayotgan amaliyotlar</CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.upcomingInternships}</div>
-          </CardContent>
-        </Card>
-      </div>
-
+      <h1 className="text-3xl font-bold tracking-tight">Mening topshiriqlarim</h1>
+      
       <Card>
         <CardHeader>
           <CardTitle>Topshiriqlar</CardTitle>
-          <CardDescription>Topshiriqlarni ko'rish va boshqarish</CardDescription>
+          <CardDescription>Barcha topshiriqlarni ko'rish va boshqarish</CardDescription>
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="homework" className="space-y-4">
-            <TabsList className="w-full sm:w-auto flex">
-              <TabsTrigger value="homework" className="flex-1 sm:flex-none">Uyga vazifalar</TabsTrigger>
-              <TabsTrigger value="internship" className="flex-1 sm:flex-none">Amaliyot</TabsTrigger>
+            <TabsList>
+              <TabsTrigger value="homework">Uyga vazifalar</TabsTrigger>
+              <TabsTrigger value="internship">Amaliyot</TabsTrigger>
             </TabsList>
             <TabsContent value="homework" className="space-y-4">
               {homeworkTasks.map(task => (
-                <div key={task.id} className="border border-border rounded-lg p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div key={task.id} className="border border-border rounded-lg p-4 flex flex-col md:flex-row justify-between md:items-center gap-4">
                   <div>
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="font-medium">{task.title}</span>
@@ -92,7 +49,7 @@ const StudentDashboard = () => {
                       {task.group} • Muddati {new Date(task.deadline).toLocaleDateString()}
                     </div>
                   </div>
-                  <Button onClick={() => navigate(`tasks/${task.id}`)}>
+                  <Button>
                     {task.status === "pending" ? "Topshirish" : "Ko'rish"}
                   </Button>
                 </div>
@@ -100,7 +57,7 @@ const StudentDashboard = () => {
             </TabsContent>
             <TabsContent value="internship" className="space-y-4">
               {internshipTasks.map(task => (
-                <div key={task.id} className="border border-border rounded-lg p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div key={task.id} className="border border-border rounded-lg p-4 flex flex-col md:flex-row justify-between md:items-center gap-4">
                   <div>
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="font-medium">{task.title}</span>
@@ -117,8 +74,7 @@ const StudentDashboard = () => {
                     </div>
                   </div>
                   <Button 
-                    disabled={new Date(task.date).toDateString() !== new Date().toDateString()} 
-                    onClick={() => navigate(`tasks/${task.id}`)}
+                    disabled={new Date(task.date).toDateString() !== new Date().toDateString()}
                   >
                     {new Date(task.date).toDateString() === new Date().toDateString() ? "Topshirish" : "Ko'rish"}
                   </Button>
@@ -128,27 +84,8 @@ const StudentDashboard = () => {
           </Tabs>
         </CardContent>
       </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Guruhga qo'shilish</CardTitle>
-          <CardDescription>
-            O'qituvchingiz tomonidan berilgan guruh kodini kiriting
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-wrap gap-2">
-            <Button variant="outline" onClick={() => navigate("join-group")}>
-              Guruhga qo'shilish
-            </Button>
-            <Button variant="ghost" onClick={() => navigate("my-groups")}>
-              Mening guruhlarim
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
     </div>
   );
 };
 
-export default StudentDashboard;
+export default StudentTasks;
