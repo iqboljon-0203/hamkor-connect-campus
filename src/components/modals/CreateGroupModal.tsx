@@ -72,7 +72,7 @@ export function CreateGroupModal({
   return (
     <>
       <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className="sm:max-w-[500px]">
+        <DialogContent className="sm:max-w-[500px] pb-24 max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Yangi guruh yaratish</DialogTitle>
             <DialogDescription>
@@ -117,7 +117,7 @@ export function CreateGroupModal({
               </div>
             </div>
 
-            <DialogFooter>
+            <DialogFooter className="fixed bottom-0 left-0 w-full max-w-[500px] bg-white border-t border-border p-4 z-50 sm:static sm:bg-transparent sm:border-0 sm:p-0">
               <Button type="button" variant="outline" onClick={onClose}>
                 Bekor qilish
               </Button>
