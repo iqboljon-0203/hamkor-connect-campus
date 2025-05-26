@@ -40,32 +40,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     const checkSession = async () => {
       setLoading(true);
       try {
-        // 1. Supabase sessionni tekshirish
-        const { data, error } = await supabase.auth.getSession();
-        if (data?.session && data.session.user) {
-          // Agar session bor bo'lsa, profildan ma'lumotlarni olib, setUser qilamiz
-          const { data: profile, error: profileError } = await supabase
-            .from("profiles")
-            .select("role, full_name, avatar")
-            .eq("id", data.session.user.id)
-            .single();
-          if (!profileError && profile) {
-            setUser({
-              id: data.session.user.id,
-              email: data.session.user.email,
-              name: profile.full_name,
-              role: profile.role,
-              profileUrl: profile.avatar || null,
-            });
-            setLoading(false);
-            return;
-          }
-        }
-        // 2. localStorage orqali tekshirish (fallback)
+        // TODO: Once Supabase is integrated, replace this with an actual session check
         const savedUser = localStorage.getItem("hamkor_user");
         if (savedUser) {
           const user = JSON.parse(savedUser);
           setUser(user);
+          // Redirect based on role if on auth pages
+          if (window.location.pathname.includes("auth")) {
+            navigate(
+              user.role === "teacher"
+                ? "/teacher-dashboard"
+                : "/student-dashboard"
+            );
+          }
         } else {
           setLoading(false);
         }
@@ -75,7 +62,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     };
 
     checkSession();
-  }, [setUser, setLoading]);
+  }, [setUser, setLoading, navigate]);
 
   const signUp = async (
     email: string,

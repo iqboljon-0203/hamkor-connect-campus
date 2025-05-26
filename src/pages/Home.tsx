@@ -1,6 +1,7 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { useAuthStore } from "@/store/authStore";
 
 const GeoEducationLogo = () => (
   <svg
@@ -36,6 +37,19 @@ const GeoEducationLogo = () => (
 );
 
 const Home: React.FC = () => {
+  const { userId, role } = useAuthStore();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (userId) {
+      if (role === "teacher") {
+        navigate("/teacher-dashboard", { replace: true });
+      } else {
+        navigate("/student-dashboard", { replace: true });
+      }
+    }
+  }, [userId, role, navigate]);
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-blue-50 to-white dark:from-gray-900 dark:to-gray-800 px-4">
       <div className="max-w-md w-full flex flex-col items-center gap-8 animate-fade-in">

@@ -49,7 +49,7 @@ export default function StudentGroupTasks() {
       if (groupData?.created_by) {
         const { data: teacherData } = await supabase
           .from("profiles")
-          .select("full_name, avatar_url")
+          .select("full_name, avatar")
           .eq("id", groupData.created_by)
           .single();
         setTeacher(teacherData);
@@ -130,12 +130,24 @@ export default function StudentGroupTasks() {
         return;
       }
       const groupLoc = { lat: group.lat, lng: group.lng };
-      const dist = Math.sqrt(
-        Math.pow(location.lat - groupLoc.lat, 2) +
-          Math.pow(location.lng - groupLoc.lng, 2)
-      );
-      if (dist > 0.02) {
-        setLocationError("Siz kerakli joyda emassiz!");
+
+      // Haversine formulasi orqali masofani hisoblash
+      const R = 6371e3; // Yer radiusi metrlarda
+      const φ1 = (groupLoc.lat * Math.PI) / 180;
+      const φ2 = (location.lat * Math.PI) / 180;
+      const Δφ = ((location.lat - groupLoc.lat) * Math.PI) / 180;
+      const Δλ = ((location.lng - groupLoc.lng) * Math.PI) / 180;
+
+      const a =
+        Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+        Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      const distance = R * c; // metrlarda
+
+      if (distance > 2500) {
+        setLocationError(
+          `Siz kerakli joydan ${Math.round(distance)} metr uzoqlikdasiz!`
+        );
         return;
       }
     }
@@ -204,9 +216,9 @@ export default function StudentGroupTasks() {
         <div className="flex flex-col md:flex-row items-center gap-6 p-6">
           <div className="flex-shrink-0 flex flex-col items-center gap-2">
             <Avatar className="h-16 w-16">
-              {teacher?.avatar_url ? (
+              {teacher?.avatar ? (
                 <img
-                  src={teacher.avatar_url}
+                  src={teacher.avatar}
                   alt={teacher.full_name}
                   className="object-cover w-full h-full rounded-full"
                 />
@@ -262,7 +274,7 @@ export default function StudentGroupTasks() {
               <div
                 key={task.id}
                 className="rounded-2xl shadow-md border border-border bg-white dark:bg-muted/60 hover:shadow-lg transition cursor-pointer p-6 group"
-                onClick={() => handleOpen(task.id)}
+                onClick={() => navigate("/student-dashboard/tasks")}
               >
                 <div className="flex items-center gap-3 mb-2">
                   <span className="font-bold text-lg">{task.title}</span>

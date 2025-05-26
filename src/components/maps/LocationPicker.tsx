@@ -149,7 +149,7 @@ export function LocationPicker({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[600px] h-[500px]">
+      <DialogContent className="sm:max-w-[600px] h-[90vh] max-h-[600px] flex flex-col">
         <DialogHeader>
           <DialogTitle>Manzilni tanlang</DialogTitle>
           <DialogDescription>
@@ -158,7 +158,7 @@ export function LocationPicker({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4">
+        <div className="space-y-4 flex-1 overflow-y-auto">
           <div className="flex gap-2">
             <Input
               placeholder="Manzilni qidirish..."

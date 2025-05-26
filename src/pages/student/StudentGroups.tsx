@@ -60,7 +60,7 @@ export default function StudentGroups() {
   const [groupId, setGroupId] = useState("");
   const [joinedGroups, setJoinedGroups] = useState<Group[]>([]);
   const [teachers, setTeachers] = useState<
-    Record<string, { full_name: string; avatar_url?: string }>
+    Record<string, { full_name: string; avatar?: string }>
   >({});
   const [membersCount, setMembersCount] = useState<Record<string, number>>({});
   const { userId } = useAuthStore();
@@ -99,7 +99,7 @@ export default function StudentGroups() {
         teacherIds = Array.from(new Set(teacherIds));
         const teacherMap: Record<
           string,
-          { full_name: string; avatar_url?: string }
+          { full_name: string; avatar?: string }
         > = {};
         for (const id of teacherIds) {
           if (id) {

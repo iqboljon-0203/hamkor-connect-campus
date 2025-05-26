@@ -20,10 +20,10 @@ const MobileNavigation = ({ role }: MobileNavigationProps) => {
   const { signOut } = useAuth();
   const navigate = useNavigate();
   const { name } = useAuthStore();
-
+  
   const basePath =
     role === "teacher" ? "/teacher-dashboard" : "/student-dashboard";
-
+  
   const handleLogout = async () => {
     await signOut();
     navigate("/auth/login");
@@ -32,8 +32,8 @@ const MobileNavigation = ({ role }: MobileNavigationProps) => {
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-card border-t border-border z-50 shadow-lg">
       <div className="flex justify-around items-center h-16">
-        <NavLink
-          to={basePath}
+        <NavLink 
+          to={basePath} 
           className={({ isActive }) =>
             `flex flex-col items-center justify-center text-xs p-2 rounded-md ${
               isActive ? "text-primary" : "text-muted-foreground"
@@ -44,8 +44,8 @@ const MobileNavigation = ({ role }: MobileNavigationProps) => {
           <Home className="h-5 w-5 mb-1" />
           <span>Dashboard</span>
         </NavLink>
-
-        <NavLink
+        
+        <NavLink 
           to={`${basePath}/tasks`}
           className={({ isActive }) =>
             `flex flex-col items-center justify-center text-xs p-2 rounded-md ${
@@ -112,9 +112,9 @@ const MobileNavigation = ({ role }: MobileNavigationProps) => {
             <span>Baholar</span>
           </NavLink>
         )}
-
-        <NavLink
-          to={`${basePath}/calendar`}
+        
+        <NavLink 
+          to={`${basePath}/calendar`} 
           className={({ isActive }) =>
             `flex flex-col items-center justify-center text-xs p-2 rounded-md ${
               isActive ? "text-primary" : "text-muted-foreground"
@@ -124,7 +124,7 @@ const MobileNavigation = ({ role }: MobileNavigationProps) => {
           <Calendar className="h-5 w-5 mb-1" />
           <span>Kalendar</span>
         </NavLink>
-
+        
         <DropdownMenu>
           <DropdownMenuTrigger className="flex flex-col items-center justify-center text-xs p-2 rounded-md focus:outline-none">
             <User className="h-5 w-5 mb-1 text-muted-foreground" />
@@ -146,7 +146,7 @@ const MobileNavigation = ({ role }: MobileNavigationProps) => {
               </NavLink>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem
+            <DropdownMenuItem 
               onClick={handleLogout}
               className="text-red-500 focus:text-red-500 cursor-pointer"
             >
