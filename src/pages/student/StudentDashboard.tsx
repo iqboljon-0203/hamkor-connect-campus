@@ -1,150 +1,465 @@
-
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useNavigate } from "react-router-dom";
 import { Calendar, FileText } from "lucide-react";
 import { useAuthStore } from "@/store/authStore";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { useState, useEffect } from "react";
+import { supabase } from "@/lib/supabaseClient";
+import { useStudentDashboardData } from "@/hooks/useStudentDashboardData";
+
+// Tiplar
+interface HomeworkTask {
+  type: "homework";
+  id: string;
+  title: string;
+  deadline: string;
+  status: string;
+  group: string;
+}
+interface InternshipTask {
+  type: "internship";
+  id: string;
+  title: string;
+  date: string;
+  status: string;
+  group: string;
+}
+type Task = HomeworkTask | InternshipTask;
+
+interface LastAnswer {
+  id: string;
+  taskTitle: string;
+  group: string;
+  date: string;
+  desc: string;
+  file_url?: string;
+}
+
+interface SupabaseAnswer {
+  id: string;
+  desc: string;
+  file_url?: string;
+  created_at: string;
+  task?: {
+    id: string;
+    title: string;
+    group_id: string;
+  } | null;
+}
+
+interface SupabaseGroup {
+  id: string;
+  name: string;
+}
+
+interface StudentDashboardData {
+  stats: { completed: number; pending: number; upcomingInternships: number };
+  upcomingTasks: Task[];
+  lastAnswers: LastAnswer[];
+}
 
 const StudentDashboard = () => {
-  const { name } = useAuthStore();
+  const { name, userId } = useAuthStore();
   const navigate = useNavigate();
+  const [openTask, setOpenTask] = useState<Task | null>(null);
+  const [answerDesc, setAnswerDesc] = useState("");
+  const [answerFile, setAnswerFile] = useState<File | null>(null);
+  const [location, setLocation] = useState<{ lat: number; lng: number } | null>(
+    null
+  );
+  const [locationError, setLocationError] = useState("");
+
+  const { data, isLoading, error } = useStudentDashboardData(userId) as {
+    data: StudentDashboardData | undefined;
+    isLoading: boolean;
+    error: unknown;
+  };
+  const stats = data?.stats || {
+    completed: 0,
+    pending: 0,
+    upcomingInternships: 0,
+  };
+  const upcomingTasks = data?.upcomingTasks || [];
+  const lastAnswers = data?.lastAnswers || [];
 
   // Mock data until we connect to Supabase
-  const stats = {
-    completedTasks: 15,
-    pendingTasks: 5,
-    upcomingInternships: 2
-  };
-
-  // Mock tasks
   const homeworkTasks = [
-    { id: "1", title: "Tadqiqot ishini topshirish", deadline: "2023-06-15", status: "pending", group: "Tadqiqot usullari" },
-    { id: "2", title: "Testni yakunlash", deadline: "2023-06-10", status: "submitted", group: "Dasturiy ta'minot muhandisligi" },
-    { id: "3", title: "5-chi laboratoriya mashg'uloti", deadline: "2023-06-18", status: "pending", group: "Ma'lumotlar bazasi tizimlari" },
+    {
+      id: "1",
+      title: "Tadqiqot ishini topshirish",
+      deadline: "2025-06-15",
+      status: "pending",
+      group: "Tadqiqot usullari",
+    },
+    {
+      id: "2",
+      title: "Testni yakunlash",
+      deadline: "2025-06-20",
+      status: "submitted",
+      group: "Dasturiy ta'minot muhandisligi",
+    },
+    {
+      id: "3",
+      title: "5-chi laboratoriya mashg'uloti",
+      deadline: "2025-06-25",
+      status: "pending",
+      group: "Ma'lumotlar bazasi tizimlari",
+    },
   ];
 
   const internshipTasks = [
-    { id: "4", title: "Dasturiy ta'minot sinovi", date: "2023-06-20", status: "pending", group: "Sifat nazorati" },
-    { id: "5", title: "Ma'lumotlar bazasi migratsiyasi", date: "2023-07-05", status: "pending", group: "Ma'lumotlar bazasi tizimlari" },
+    {
+      id: "4",
+      title: "Dasturiy ta'minot sinovi",
+      date: "2025-07-01",
+      status: "pending",
+      group: "Sifat nazorati",
+    },
+    {
+      id: "5",
+      title: "Ma'lumotlar bazasi migratsiyasi",
+      date: "2025-07-05",
+      status: "pending",
+      group: "Ma'lumotlar bazasi tizimlari",
+    },
   ];
+
+  // Barcha topshiriqlarni bitta massivga birlashtiramiz
+  const allTasks: Task[] = [
+    ...homeworkTasks.map((t) => ({ ...t, type: "homework" as const })),
+    ...internshipTasks.map((t) => ({ ...t, type: "internship" as const })),
+  ];
+
+  function isToday(dateStr) {
+    const today = new Date();
+    const date = new Date(dateStr);
+    return (
+      date.getFullYear() === today.getFullYear() &&
+      date.getMonth() === today.getMonth() &&
+      date.getDate() === today.getDate()
+    );
+  }
+
+  const handleOpen = (task) => {
+    setOpenTask(task);
+    setAnswerDesc("");
+    setAnswerFile(null);
+    setLocation(null);
+    setLocationError("");
+  };
+
+  const handleFileChange = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      setAnswerFile(e.target.files[0]);
+    }
+  };
+
+  const handleGetLocation = () => {
+    if (!navigator.geolocation) {
+      setLocationError("Brauzeringiz geolokatsiyani qo'llab-quvvatlamaydi");
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+        setLocationError("");
+      },
+      () => {
+        setLocationError("Lokatsiyani aniqlab bo'lmadi");
+      }
+    );
+  };
+
+  const handleSubmit = (task) => {
+    if (task.type === "internship") {
+      if (!location) {
+        setLocationError("Lokatsiyani aniqlang");
+        return;
+      }
+      // Lokatsiya tekshiruvi uchun mock
+      // TODO: Guruh lokatsiyasini taskdan olish
+      // const groupLoc = ...
+      // const dist = ...
+      // if (dist > 0.02) { setLocationError('Siz kerakli joyda emassiz!'); return; }
+    }
+    alert(
+      "Javob yuborildi!\nTavsif: " +
+        answerDesc +
+        (answerFile ? "\nFayl: " + answerFile.name : "")
+    );
+    setOpenTask(null);
+  };
 
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold tracking-tight">Hush kelibsiz, {name}</h1>
+      <h1 className="text-3xl font-bold tracking-tight">
+        Xush kelibsiz, {name}
+      </h1>
 
-      <div className="grid gap-4 grid-cols-1 sm:grid-cols-3">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Yakunlangan topshiriqlar</CardTitle>
-            <FileText className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.completedTasks}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Kutilayotgan topshiriqlar</CardTitle>
-            <FileText className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.pendingTasks}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Yaqinlashayotgan amaliyotlar</CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.upcomingInternships}</div>
-          </CardContent>
-        </Card>
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 mb-8">
+        <div className="rounded-2xl bg-white dark:bg-muted/60 border border-border shadow-md p-6 flex flex-col gap-2">
+          <div className="text-sm text-muted-foreground font-medium flex items-center gap-2">
+            Yakunlangan topshiriqlar
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M9 12l2 2l4 -4m6 2a9 9 0 11-18 0a9 9 0 0118 0z"
+              />
+            </svg>
+          </div>
+          <div className="text-2xl font-bold">{stats.completed}</div>
+        </div>
+        <div className="rounded-2xl bg-white dark:bg-muted/60 border border-border shadow-md p-6 flex flex-col gap-2">
+          <div className="text-sm text-muted-foreground font-medium flex items-center gap-2">
+            Kutilayotgan topshiriqlar
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M9 17v-6a2 2 0 012-2h6"
+              />
+            </svg>
+          </div>
+          <div className="text-2xl font-bold">{stats.pending}</div>
+        </div>
+        <div className="rounded-2xl bg-white dark:bg-muted/60 border border-border shadow-md p-6 flex flex-col gap-2">
+          <div className="text-sm text-muted-foreground font-medium flex items-center gap-2">
+            Yaqinlashayotgan amaliyotlar
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+              />
+            </svg>
+          </div>
+          <div className="text-2xl font-bold">{stats.upcomingInternships}</div>
+        </div>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Topshiriqlar</CardTitle>
-          <CardDescription>Topshiriqlarni ko'rish va boshqarish</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Tabs defaultValue="homework" className="space-y-4">
-            <TabsList className="w-full sm:w-auto flex">
-              <TabsTrigger value="homework" className="flex-1 sm:flex-none">Uyga vazifalar</TabsTrigger>
-              <TabsTrigger value="internship" className="flex-1 sm:flex-none">Amaliyot</TabsTrigger>
-            </TabsList>
-            <TabsContent value="homework" className="space-y-4">
-              {homeworkTasks.map(task => (
-                <div key={task.id} className="border border-border rounded-lg p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                  <div>
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="font-medium">{task.title}</span>
-                      <span className={`text-xs px-2 py-0.5 rounded-full ${
-                        task.status === 'pending' 
-                          ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300' 
-                          : 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
-                      }`}>
-                        {task.status === 'pending' ? 'Kutilmoqda' : 'Topshirilgan'}
-                      </span>
-                    </div>
-                    <div className="text-sm text-muted-foreground mt-1">
-                      {task.group} • Muddati {new Date(task.deadline).toLocaleDateString()}
-                    </div>
-                  </div>
-                  <Button onClick={() => navigate(`tasks/${task.id}`)}>
-                    {task.status === "pending" ? "Topshirish" : "Ko'rish"}
-                  </Button>
-                </div>
-              ))}
-            </TabsContent>
-            <TabsContent value="internship" className="space-y-4">
-              {internshipTasks.map(task => (
-                <div key={task.id} className="border border-border rounded-lg p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                  <div>
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="font-medium">{task.title}</span>
-                      <span className={`text-xs px-2 py-0.5 rounded-full ${
-                        new Date(task.date) > new Date() 
-                          ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300' 
-                          : 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
-                      }`}>
-                        {new Date(task.date) > new Date() ? 'Kelgusi' : 'Bugun'}
-                      </span>
-                    </div>
-                    <div className="text-sm text-muted-foreground mt-1">
-                      {task.group} • Rejada {new Date(task.date).toLocaleDateString()}
-                    </div>
-                  </div>
-                  <Button 
-                    disabled={new Date(task.date).toDateString() !== new Date().toDateString()} 
-                    onClick={() => navigate(`tasks/${task.id}`)}
-                  >
-                    {new Date(task.date).toDateString() === new Date().toDateString() ? "Topshirish" : "Ko'rish"}
-                  </Button>
-                </div>
-              ))}
-            </TabsContent>
-          </Tabs>
-        </CardContent>
-      </Card>
+      {/* Guruhga qo'shilish cardini olib tashladim */}
 
+      {/* Yaqinlashayotgan topshiriqlar bo'limi */}
       <Card>
         <CardHeader>
-          <CardTitle>Guruhga qo'shilish</CardTitle>
+          <CardTitle>Yaqinlashayotgan topshiriqlar</CardTitle>
           <CardDescription>
-            O'qituvchingiz tomonidan berilgan guruh kodini kiriting
+            Deadline yoki amaliyot kuni eng yaqin bo'lgan 3 ta topshiriq
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex flex-wrap gap-2">
-            <Button variant="outline" onClick={() => navigate("join-group")}>
-              Guruhga qo'shilish
-            </Button>
-            <Button variant="ghost" onClick={() => navigate("my-groups")}>
-              Mening guruhlarim
-            </Button>
-          </div>
+          {isLoading ? (
+            <div className="text-center py-8 text-muted-foreground">
+              Yuklanmoqda...
+            </div>
+          ) : error ? (
+            <div className="text-center py-8 text-red-500">
+              Xatolik:{" "}
+              {typeof error === "object" && error && "message" in error
+                ? (error as { message?: string }).message
+                : String(error)}
+            </div>
+          ) : upcomingTasks.length === 0 ? (
+            <div className="text-muted-foreground">
+              Yaqinlashayotgan topshiriq yo'q
+            </div>
+          ) : (
+            upcomingTasks.map((task) => (
+              <div
+                key={task.id}
+                className="border border-border rounded-lg p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4"
+              >
+                <div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="font-medium">{task.title}</span>
+                    <span
+                      className={`text-xs px-2 py-0.5 rounded-full ${task.type === "homework" ? "bg-purple-100 text-purple-800" : "bg-orange-100 text-orange-800"}`}
+                    >
+                      {task.type === "homework" ? "Uyga vazifa" : "Amaliyot"}
+                    </span>
+                    {/* Status badge */}
+                    <span
+                      className={`text-xs px-2 py-0.5 rounded-full ${
+                        task.status === "pending"
+                          ? "bg-yellow-100 text-yellow-800"
+                          : "bg-green-100 text-green-800"
+                      }`}
+                    >
+                      {task.status === "pending"
+                        ? "Kutilmoqda"
+                        : "Topshirilgan"}
+                    </span>
+                  </div>
+                  <div className="text-sm text-muted-foreground mt-1">
+                    {task.group} •{" "}
+                    {task.type === "homework"
+                      ? `Muddati ${new Date(task.deadline).toLocaleDateString()}`
+                      : `Rejada ${new Date(task.date).toLocaleDateString()}`}
+                  </div>
+                </div>
+                <Button
+                  className="min-w-[110px]"
+                  onClick={() =>
+                    task.status === "pending"
+                      ? navigate("/student-dashboard/tasks")
+                      : navigate("/student-dashboard/grades")
+                  }
+                >
+                  {task.status === "pending" ? "Topshirish" : "Ko'rish"}
+                </Button>
+                {task.status === "pending" && (
+                  <Dialog
+                    open={openTask?.id === task.id}
+                    onOpenChange={() => setOpenTask(null)}
+                  >
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Javob yuborish</DialogTitle>
+                        <DialogDescription>
+                          {task.type === "homework"
+                            ? "Uyga vazifa uchun javob yuboring."
+                            : "Amaliyot topshirig'i uchun faqat amaliyot kuni va kerakli joyda bo'lsangiz javob yuborishingiz mumkin."}
+                        </DialogDescription>
+                      </DialogHeader>
+                      <Input
+                        placeholder="Tavsif..."
+                        value={answerDesc}
+                        onChange={(e) => setAnswerDesc(e.target.value)}
+                        className="mb-2"
+                      />
+                      <Input
+                        type="file"
+                        onChange={handleFileChange}
+                        className="mb-2"
+                      />
+                      {task.type === "internship" && (
+                        <div className="mb-2">
+                          <Button type="button" onClick={handleGetLocation}>
+                            Lokatsiyani aniqlash
+                          </Button>
+                          {location && (
+                            <div className="text-xs mt-1 text-green-600">
+                              Lokatsiya: {location.lat.toFixed(4)},{" "}
+                              {location.lng.toFixed(4)}
+                            </div>
+                          )}
+                          {locationError && (
+                            <div className="text-xs mt-1 text-red-600">
+                              {locationError}
+                            </div>
+                          )}
+                        </div>
+                      )}
+                      <DialogFooter>
+                        <Button onClick={() => handleSubmit(task)}>
+                          Yuborish
+                        </Button>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
+                )}
+              </div>
+            ))
+          )}
+        </CardContent>
+      </Card>
+
+      {/* So'nggi faollik bo'limi */}
+      <Card>
+        <CardHeader>
+          <CardTitle>So'nggi faollik</CardTitle>
+          <CardDescription>Eng oxirgi 3 ta yuborilgan javob</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {isLoading ? (
+            <div className="text-center py-8 text-muted-foreground">
+              Yuklanmoqda...
+            </div>
+          ) : error ? (
+            <div className="text-center py-8 text-red-500">
+              Xatolik:{" "}
+              {typeof error === "object" && error && "message" in error
+                ? (error as { message?: string }).message
+                : String(error)}
+            </div>
+          ) : lastAnswers.length === 0 ? (
+            <div className="text-muted-foreground">Hali javob yuborilmagan</div>
+          ) : (
+            <div className="space-y-3">
+              {lastAnswers.map((ans) => (
+                <div
+                  key={ans.id}
+                  className="border border-border rounded-lg p-3 flex flex-col gap-1"
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="font-medium">{ans.taskTitle}</span>
+                    <span className="text-xs text-muted-foreground">
+                      {ans.group}
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      {new Date(ans.date).toLocaleDateString()}
+                    </span>
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    {ans.desc && ans.desc !== "EMPTY" ? (
+                      ans.desc
+                    ) : (
+                      <span className="text-muted-foreground">Tavsif yo'q</span>
+                    )}
+                  </div>
+                  {ans.file_url && (
+                    <a
+                      href={
+                        supabase.storage
+                          .from("answers")
+                          .getPublicUrl(ans.file_url).data.publicUrl
+                      }
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs text-blue-600 underline mt-1"
+                    >
+                      Faylni ko'rish
+                    </a>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

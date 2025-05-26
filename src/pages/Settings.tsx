@@ -1,15 +1,21 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import { useTheme } from "next-themes";
 
 const Settings = () => {
   const { toast } = useToast();
-  const [darkMode, setDarkMode] = useState(false);
+  const { theme, setTheme } = useTheme();
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [language, setLanguage] = useState("uz");
 
@@ -23,7 +29,7 @@ const Settings = () => {
   return (
     <div className="space-y-6 pb-16 mb-0 md:mb-0">
       <h1 className="text-3xl font-bold tracking-tight">Sozlamalar</h1>
-      
+
       <Card className="glass-card">
         <CardHeader>
           <CardTitle>Ilova sozlamalari</CardTitle>
@@ -38,11 +44,13 @@ const Settings = () => {
             </div>
             <Switch
               id="dark-mode"
-              checked={darkMode}
-              onCheckedChange={setDarkMode}
+              checked={theme === "dark"}
+              onCheckedChange={(checked) =>
+                setTheme(checked ? "dark" : "light")
+              }
             />
           </div>
-          
+
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label htmlFor="notifications">Bildirishnomalar</Label>
@@ -56,7 +64,7 @@ const Settings = () => {
               onCheckedChange={setNotificationsEnabled}
             />
           </div>
-          
+
           <div className="space-y-2">
             <Label htmlFor="language">Til</Label>
             <Select value={language} onValueChange={setLanguage}>
@@ -70,8 +78,8 @@ const Settings = () => {
               </SelectContent>
             </Select>
           </div>
-          
-          <Button onClick={handleSaveSettings} className="w-full sm:w-auto mt-4">
+
+          <Button onClick={handleSaveSettings} className="w-full">
             Saqlash
           </Button>
         </CardContent>

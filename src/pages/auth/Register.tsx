@@ -4,7 +4,14 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/hooks/use-toast";
@@ -15,7 +22,9 @@ import { UserRole } from "@/types";
 const registerSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters" }),
   email: z.string().email({ message: "Please enter a valid email address" }),
-  password: z.string().min(6, { message: "Password must be at least 6 characters" }),
+  password: z
+    .string()
+    .min(6, { message: "Password must be at least 6 characters" }),
   role: z.enum(["student", "teacher"] as const, {
     required_error: "Please select a role",
   }),
@@ -41,15 +50,23 @@ const Register = () => {
   const onSubmit = async (values: RegisterFormValues) => {
     setIsLoading(true);
     try {
-      await signUp(values.email, values.password, values.name, values.role as UserRole);
+      await signUp(
+        values.email,
+        values.password,
+        values.name,
+        values.role as UserRole
+      );
       toast({
         title: "Registration successful",
-        description: "Welcome to Hamkor Talim!",
+        description: "Welcome to GeoEdubot!",
       });
     } catch (error) {
       toast({
         title: "Registration failed",
-        description: error instanceof Error ? error.message : "An error occurred during registration",
+        description:
+          error instanceof Error
+            ? error.message
+            : "An error occurred during registration",
         variant: "destructive",
       });
     } finally {
@@ -61,18 +78,23 @@ const Register = () => {
     <div className="auth-layout bg-gradient-to-br from-brand-50 to-blue-50 dark:from-gray-900 dark:to-gray-800">
       <div className="w-full max-w-md animate-fade-in">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-brand-600">Hamkor Talim</h1>
-          <p className="text-muted-foreground mt-2">Student-Teacher Internship Task Management</p>
+          <h1 className="text-3xl font-bold text-brand-600">GeoEducationbot</h1>
+          <p className="text-muted-foreground mt-2">
+            Talaba va ustozlar uchun amaliyot va topshiriq platformasi
+          </p>
         </div>
-        
-        <AuthCard 
-          title="Create an account" 
-          description="Sign up to get started with Hamkor Talim"
+
+        <AuthCard
+          title="Ro‘yxatdan o‘tish"
+          description="Yangi hisob yaratish uchun ma'lumotlarni to'ldiring"
           footer={
             <div className="text-center text-sm">
-              Already have an account?{" "}
-              <Link to="/auth/login" className="text-brand-500 hover:underline font-medium">
-                Sign in
+              Hisobingiz bormi?{" "}
+              <Link
+                to="/auth/login"
+                className="text-brand-500 hover:underline font-medium"
+              >
+                Kirish
               </Link>
             </div>
           }
@@ -86,10 +108,10 @@ const Register = () => {
                   <FormItem>
                     <FormLabel>Full Name</FormLabel>
                     <FormControl>
-                      <Input 
-                        placeholder="John Doe" 
-                        disabled={isLoading} 
-                        {...field} 
+                      <Input
+                        placeholder="John Doe"
+                        disabled={isLoading}
+                        {...field}
                       />
                     </FormControl>
                     <FormMessage />
@@ -103,12 +125,12 @@ const Register = () => {
                   <FormItem>
                     <FormLabel>Email</FormLabel>
                     <FormControl>
-                      <Input 
-                        placeholder="name@example.com" 
-                        type="email" 
-                        autoComplete="email" 
-                        disabled={isLoading} 
-                        {...field} 
+                      <Input
+                        placeholder="name@example.com"
+                        type="email"
+                        autoComplete="email"
+                        disabled={isLoading}
+                        {...field}
                       />
                     </FormControl>
                     <FormMessage />
@@ -122,13 +144,13 @@ const Register = () => {
                   <FormItem>
                     <FormLabel>Password</FormLabel>
                     <FormControl>
-                      <Input 
-                        placeholder="••••••••" 
-                        type="password" 
-                        autoComplete="new-password" 
-                        disabled={isLoading} 
+                      <Input
+                        placeholder="••••••••"
+                        type="password"
+                        autoComplete="new-password"
+                        disabled={isLoading}
                         showPasswordToggle={true}
-                        {...field} 
+                        {...field}
                       />
                     </FormControl>
                     <FormMessage />
@@ -152,13 +174,17 @@ const Register = () => {
                           <FormControl>
                             <RadioGroupItem value="student" />
                           </FormControl>
-                          <FormLabel className="font-normal cursor-pointer">Student</FormLabel>
+                          <FormLabel className="font-normal cursor-pointer">
+                            Student
+                          </FormLabel>
                         </FormItem>
                         <FormItem className="flex items-center space-x-2 space-y-0">
                           <FormControl>
                             <RadioGroupItem value="teacher" />
                           </FormControl>
-                          <FormLabel className="font-normal cursor-pointer">Teacher</FormLabel>
+                          <FormLabel className="font-normal cursor-pointer">
+                            Teacher
+                          </FormLabel>
                         </FormItem>
                       </RadioGroup>
                     </FormControl>
@@ -166,11 +192,7 @@ const Register = () => {
                   </FormItem>
                 )}
               />
-              <Button 
-                type="submit" 
-                className="w-full" 
-                disabled={isLoading}
-              >
+              <Button type="submit" className="w-full" disabled={isLoading}>
                 {isLoading ? "Creating account..." : "Create account"}
               </Button>
             </form>

@@ -4,7 +4,14 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
@@ -12,7 +19,9 @@ import { AuthCard } from "@/components/ui/auth-card";
 
 const loginSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address" }),
-  password: z.string().min(6, { message: "Password must be at least 6 characters" }),
+  password: z
+    .string()
+    .min(6, { message: "Password must be at least 6 characters" }),
 });
 
 type LoginFormValues = z.infer<typeof loginSchema>;
@@ -36,12 +45,15 @@ const Login = () => {
       await signIn(values.email, values.password);
       toast({
         title: "Login successful",
-        description: "Welcome back to Hamkor Talim!",
+        description: "Welcome back to GeoEdubot!",
       });
     } catch (error) {
       toast({
         title: "Login failed",
-        description: error instanceof Error ? error.message : "Please check your credentials",
+        description:
+          error instanceof Error
+            ? error.message
+            : "Please check your credentials",
         variant: "destructive",
       });
     } finally {
@@ -53,18 +65,23 @@ const Login = () => {
     <div className="auth-layout bg-gradient-to-br from-brand-50 to-blue-50 dark:from-gray-900 dark:to-gray-800">
       <div className="w-full max-w-md animate-fade-in">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-brand-600">Hamkor Talim</h1>
-          <p className="text-muted-foreground mt-2">Student-Teacher Internship Task Management</p>
+          <h1 className="text-3xl font-bold text-brand-600">GeoEducationbot</h1>
+          <p className="text-muted-foreground mt-2">
+            Talaba va ustozlar uchun amaliyot va topshiriq platformasi
+          </p>
         </div>
-        
-        <AuthCard 
-          title="Welcome back" 
-          description="Sign in to your account to continue"
+
+        <AuthCard
+          title="Xush kelibsiz"
+          description="Hisobingizga kirish uchun ma'lumotlarni to'ldiring"
           footer={
             <div className="text-center text-sm">
-              Don't have an account?{" "}
-              <Link to="/auth/register" className="text-brand-500 hover:underline font-medium">
-                Create an account
+              Hisobingiz yo‘qmi?{" "}
+              <Link
+                to="/auth/register"
+                className="text-brand-500 hover:underline font-medium"
+              >
+                Ro‘yxatdan o‘tish
               </Link>
             </div>
           }
@@ -78,12 +95,12 @@ const Login = () => {
                   <FormItem>
                     <FormLabel>Email</FormLabel>
                     <FormControl>
-                      <Input 
-                        placeholder="name@example.com" 
-                        type="email" 
-                        autoComplete="email" 
-                        disabled={isLoading} 
-                        {...field} 
+                      <Input
+                        placeholder="name@example.com"
+                        type="email"
+                        autoComplete="email"
+                        disabled={isLoading}
+                        {...field}
                       />
                     </FormControl>
                     <FormMessage />
@@ -97,24 +114,20 @@ const Login = () => {
                   <FormItem>
                     <FormLabel>Password</FormLabel>
                     <FormControl>
-                      <Input 
-                        placeholder="••••••••" 
-                        type="password" 
-                        autoComplete="current-password" 
-                        disabled={isLoading} 
+                      <Input
+                        placeholder="••••••••"
+                        type="password"
+                        autoComplete="current-password"
+                        disabled={isLoading}
                         showPasswordToggle={true}
-                        {...field} 
+                        {...field}
                       />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-              <Button 
-                type="submit" 
-                className="w-full" 
-                disabled={isLoading}
-              >
+              <Button type="submit" className="w-full" disabled={isLoading}>
                 {isLoading ? "Signing in..." : "Sign in"}
               </Button>
             </form>

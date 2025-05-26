@@ -1,6 +1,5 @@
-
-import { create } from 'zustand';
-import { UserRole } from '../types';
+import { create } from "zustand";
+import { UserRole } from "../types";
 
 interface AuthState {
   isAuthenticated: boolean;
@@ -10,7 +9,7 @@ interface AuthState {
   role: UserRole | null;
   profileUrl: string | null;
   isLoading: boolean;
-  
+
   // Actions
   setUser: (user: {
     id: string;
@@ -31,26 +30,33 @@ export const useAuthStore = create<AuthState>((set) => ({
   role: null,
   profileUrl: null,
   isLoading: true,
-  
-  setUser: (user) => set({
-    isAuthenticated: true,
-    userId: user.id,
-    email: user.email,
-    name: user.name,
-    role: user.role,
-    profileUrl: user.profileUrl || null,
-    isLoading: false,
-  }),
-  
+
+  setUser: (user) => {
+    localStorage.setItem("hamkor_user", JSON.stringify(user));
+    set({
+      isAuthenticated: true,
+      userId: user.id,
+      email: user.email,
+      name: user.name,
+      role: user.role,
+      profileUrl: user.profileUrl || null,
+      isLoading: false,
+    });
+  },
+
   setLoading: (isLoading) => set({ isLoading }),
-  
-  logout: () => set({
-    isAuthenticated: false,
-    userId: null,
-    email: null,
-    name: null,
-    role: null,
-    profileUrl: null,
-    isLoading: false,
-  }),
+
+  logout: () => {
+    localStorage.removeItem("hamkor_user");
+    localStorage.removeItem("hamkor_password");
+    set({
+      isAuthenticated: false,
+      userId: null,
+      email: null,
+      name: null,
+      role: null,
+      profileUrl: null,
+      isLoading: false,
+    });
+  },
 }));
