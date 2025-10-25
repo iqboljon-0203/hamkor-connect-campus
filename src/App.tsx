@@ -140,7 +140,7 @@ const App = () => (
                   {/* Add more teacher routes here */}
                 </Route>
 
-                {/* Student Dashboard Routes */}
+              
                 <Route
                   path="/student-dashboard"
                   element={
